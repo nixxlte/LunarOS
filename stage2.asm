@@ -247,13 +247,18 @@ strcmp:
 ; ================================
 ; STRINGS
 ; ================================
-str_help  db "help",0
-str_clear db "clear",0
-str_ping db "ping",0
-str_about db "about",0
+
 str_echo db "echo",0
 
 help_msg db "Commands: help, clear, ping, about, echo", 0x0D, 0x0A, 0
+str_help  db "help",0
+
 ping_msg db "Pong!",0x0D,0x0A,0
+str_ping db "ping",0
+
 about_msg db "LunarOS", 0x0D, 0x0A, "Version 0.1, kernel 0.1-2", 0x0A, "Made by NixxLTE and Lesaninhu", 0x0D, 0x0A, 0
+str_about db "about",0
+
 unknown db "Unknown command", 0x0D, 0x0A, 0
+
+str_clear db "clear",0
