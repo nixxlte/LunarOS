@@ -9,6 +9,13 @@ jmp start
 nop
 
 start:
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+
+    mov [BOOT_DRIVE], dl
+
+    call load_fs
     call clear_screen
 
 main_loop:
@@ -54,12 +61,15 @@ clear_screen:
 ; salva em buffer
 ; ================================
 read_input:
+    mov ax, 0
+    mov es, ax
+
     mov di, buffer
     mov cx, 64
     mov al, 0
     rep stosb
 
-    mov di, buffer   ; reset pointer
+    mov di, buffer
 
 .read:
     mov ah, 0x00
@@ -115,6 +125,7 @@ newline db 0x0D,0x0A,0
 ; ================================
 handle_command:
     mov si, buffer
+    call print_string
 
     call strcmp_help ; help
     cmp ax, 1
@@ -245,6 +256,24 @@ strcmp:
     ret
 
 ; ================================
+; LOAD FILESYSTEM
+; ================================
+load_fs:
+    mov ax, 0x0000
+    mov es, ax
+    mov bx, 0x7000
+
+    mov ah, 0x02
+    mov al, 1
+    mov ch, 0
+    mov cl, 3
+    mov dh, 0
+    mov dl, [BOOT_DRIVE]
+    int 0x13
+
+    ret
+
+; ================================
 ; STRINGS
 ; ================================
 
@@ -262,3 +291,5 @@ str_about db "about",0
 unknown db "Unknown command", 0x0D, 0x0A, 0
 
 str_clear db "clear",0
+
+BOOT_DRIVE db 0

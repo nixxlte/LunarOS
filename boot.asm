@@ -1,26 +1,39 @@
-; boot.asm
 BITS 16
 ORG 0x7C00
 
 start:
+    cli
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    sti
+
     mov [BOOT_DRIVE], dl
 
     mov si, msg
     call print
 
-    ; load 5 sectors from disk (stage2)
+    ; reset disk
+    mov ah, 0x00
+    mov dl, [BOOT_DRIVE]
+    int 0x13
+
+    ; load stage2
     mov ah, 0x02
-    mov al, 1          ; sectors
+    mov al, 1 ; 1 sector
     mov ch, 0
     mov cl, 2
     mov dh, 0
     mov dl, [BOOT_DRIVE]
-    mov bx, 0x8000     ; where to load in the RAM
+
+    mov bx, 0x8000
     int 0x13
 
     jc disk_error
 
-    jmp 0x0000:0x8000  ; jump to stage2
+    push 0x0000
+    push 0x8000
+    retf
 
 disk_error:
     mov si, err
