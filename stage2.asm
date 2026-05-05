@@ -55,6 +55,11 @@ clear_screen:
 ; ================================
 read_input:
     mov di, buffer
+    mov cx, 64
+    mov al, 0
+    rep stosb
+
+    mov di, buffer   ; reset pointer
 
 .read:
     mov ah, 0x00
@@ -127,6 +132,10 @@ handle_command:
     cmp ax, 1
     je cmd_about
 
+    call strcmp_echo
+    cmp ax, 1
+    je cmd_echo
+
     ; comando desconhecido
     mov si, unknown
     call print_string
@@ -154,6 +163,24 @@ cmd_about:
     call print_string
     ret
 
+cmd_echo:
+    mov si, buffer
+
+.skip:
+    lodsb
+    cmp al, ' '
+    je .print
+    cmp al, 0
+    je .done
+    jmp .skip
+
+.print:
+    call print_string
+.done:
+    mov si, newline
+    call print_string
+    ret
+
 ; ================================
 ; STRCMP (buffer vs string)
 ; retorna AX = 1 se igual
@@ -178,20 +205,36 @@ strcmp_about:
     mov di, str_about
     jmp strcmp
 
+strcmp_echo:
+    mov si, buffer
+    mov di, str_echo
+    jmp strcmp
+
 strcmp:
 .compare:
     mov al, [si]
     mov bl, [di]
 
+    ; se chegou no fim do comando (di)
+    cmp bl, 0
+    je .check_end
+
     cmp al, bl
     jne .not_equal
-
-    cmp al, 0
-    je .equal
 
     inc si
     inc di
     jmp .compare
+
+.check_end:
+    ; aceita:
+    ; "echo"
+    ; "echo "
+    cmp al, ' '
+    je .equal
+    cmp al, 0
+    je .equal
+    jmp .not_equal
 
 .equal:
     mov ax, 1
@@ -208,8 +251,9 @@ str_help  db "help",0
 str_clear db "clear",0
 str_ping db "ping",0
 str_about db "about",0
+str_echo db "echo",0
 
-help_msg db "Commands: help, clear, ping, about", 0x0D, 0x0A, 0
+help_msg db "Commands: help, clear, ping, about, echo", 0x0D, 0x0A, 0
 ping_msg db "Pong!",0x0D,0x0A,0
 about_msg db "LunarOS", 0x0D, 0x0A, "Version 0.1, kernel 0.1-2", 0x0A, "Made by NixxLTE and Lesaninhu", 0x0D, 0x0A, 0
 unknown db "Unknown command", 0x0D, 0x0A, 0
