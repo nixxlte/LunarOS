@@ -125,7 +125,7 @@ newline db 0x0D,0x0A,0
 ; ================================
 handle_command:
     mov si, buffer
-    call print_string
+    ; call print_string
 
     call strcmp_help ; help
     cmp ax, 1
@@ -143,7 +143,7 @@ handle_command:
     cmp ax, 1
     je cmd_about
 
-    call strcmp_echo
+    call strcmp_echo ; echo
     cmp ax, 1
     je cmd_echo
 
@@ -291,5 +291,6 @@ str_about db "about",0
 unknown db "Unknown command", 0x0D, 0x0A, 0
 
 str_clear db "clear",0
+
 
 BOOT_DRIVE db 0
