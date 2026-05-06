@@ -15,8 +15,13 @@ start:
 
     mov [BOOT_DRIVE], dl
 
-    call load_fs
     call clear_screen
+    
+    ; mov si, boottext
+    ; call print_string
+    ; boottext db "LunarOS by NixxLTE and Lesano", 0x0D, 0x0A, "Build: 20260505", 0x0D, 0x0A, 0
+    
+    call load_fs
 
 main_loop:
     call print_prompt
@@ -139,6 +144,10 @@ handle_command:
     cmp ax, 1
     je cmd_ping
     
+    call strcmp_pong ; pong (joke)
+    cmp ax, 1
+    je cmd_pong
+    
     call strcmp_about ; about
     cmp ax, 1
     je cmd_about
@@ -169,7 +178,14 @@ cmd_ping:
     call print_string
     ret
 
+cmd_pong:
+    mov si, pong_msg
+    call print_string
+    ret
+
 cmd_about:
+    mov si, ascii
+    call print_string
     mov si, about_msg
     call print_string
     ret
@@ -209,6 +225,11 @@ strcmp_clear:
 strcmp_ping:
     mov si, buffer
     mov di, str_ping
+    jmp strcmp
+
+strcmp_pong:
+    mov si, buffer
+    mov di, str_pong
     jmp strcmp
 
 strcmp_about:
@@ -278,19 +299,22 @@ load_fs:
 ; ================================
 
 str_echo db "echo",0
-
-help_msg db "Commands: help, clear, ping, about, echo", 0x0D, 0x0A, 0
 str_help  db "help",0
-
-ping_msg db "Pong!",0x0D,0x0A,0
 str_ping db "ping",0
-
-about_msg db "LunarOS", 0x0D, 0x0A, "Version 0.1, kernel 0.1-2", 0x0A, "Made by NixxLTE and Lesaninhu", 0x0D, 0x0A, 0
+str_pong db "pong",0
 str_about db "about",0
-
-unknown db "Unknown command", 0x0D, 0x0A, 0
-
 str_clear db "clear",0
 
+help_msg db "Commands: help, clear, ping, about, echo", 0x0D, 0x0A,0
+
+ping_msg db "Pong!",0x0D,0x0A,0
+
+pong_msg db "Ping!",0x0D,0x0A,0
+
+about_msg db "LunarOS", 0x0D, 0x0A, "Version 0.1, ", "kernel 0.1-3", 0x0A, "Made by NixxLTE and Lesaninhu", 0x0D, 0x0A,0
+
+unknown db "Unknown command", 0x0D, 0x0A,0
+
+ascii db "/\---/\", 0x0D, 0x0A, "( * * )", 0x0D, 0x0A,0
 
 BOOT_DRIVE db 0
