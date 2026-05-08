@@ -43,6 +43,7 @@ prompt db "LUNAR@kernel$ ",0
 ; PRINT STRING (SI = string)
 ; ================================
 print_string:
+    cld
 .next:
     lodsb                ; pega próximo char de SI -> AL
     or al, al
@@ -85,6 +86,9 @@ read_input:
 
     cmp al, 8         ; Backspace?
     je .backspace
+
+    cmp di, buffer + 63
+    jae .read
 
     ; salva char no buffer
     stosb
@@ -282,7 +286,7 @@ strcmp:
 load_fs:
     mov ax, 0x0000
     mov es, ax
-    mov bx, 0x7000
+    mov bx, 0x9000
 
     mov ah, 0x02
     mov al, 1
